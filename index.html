@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calculadora de Tempo de Serviço — PMERJ</title>
+<link rel="stylesheet" href="calc_style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+
+<button type="button" id="btnAbrirDiasEntreDatas" class="fab-dias gatilho-dias-entre"
+        aria-haspopup="dialog" aria-controls="modalDiasEntreDatas"
+        title="Calculadora de dias entre datas">
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
+       stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <rect x="3" y="5" width="18" height="16" rx="2"></rect>
+    <line x1="16" y1="3" x2="16" y2="7"></line>
+    <line x1="8" y1="3" x2="8" y2="7"></line>
+    <line x1="3" y1="10" x2="21" y2="10"></line>
+  </svg>
+</button>
+
+<dialog id="modalDiasEntreDatas" class="modal-dias">
+  <div class="modal-dias-conteudo">
+    <div class="modal-dias-cabeca">
+      <h2>Dias entre datas</h2>
+      <button type="button" id="btnFecharDiasEntreDatas" class="modal-fechar" aria-label="Fechar">&times;</button>
+    </div>
+
+    <div class="campo">
+      <label for="diasEntreInicio">Data inicial</label>
+      <input type="date" id="diasEntreInicio">
+    </div>
+    <div class="campo">
+      <label for="diasEntreFim">Data final</label>
+      <input type="date" id="diasEntreFim">
+    </div>
+
+    <button type="button" id="btnCalcularDiasEntre" class="botao botao-principal">Calcular</button>
+
+    <p class="modal-dias-resultado" id="resultadoDiasEntre" hidden>
+      <span class="num" id="resultadoDiasEntreValor">—</span> dia(s)
+      <span class="modal-dias-nota">— contagem inclusiva (data final incluída)</span>
+    </p>
+  </div>
+</dialog>
+
+<header class="topo">
+  <div class="topo-interno">
+    <p class="selo">PMERJ · Diretoria de Cadastros e Pagamentos</p>
+    <h1 class="titulo">Calculadora de Tempo de Serviço</h1>
+    <p class="subtitulo">
+      Projeta a passagem para a reserva remunerada a partir da data de praça,
+      dos afastamentos e do tempo averbado. Contagem inclusiva, com ano de 365 dias.
+    </p>
+  </div>
+</header>
+<main class="corpo">
+
+  <!-- ============ COLUNA 1: ENTRADAS ============ -->
+  <section class="cartao" aria-labelledby="tit-dados">
+    <div class="cartao-cabeca">
+      <h2 class="cartao-titulo" id="tit-dados">Dados do militar</h2>
+    </div>
+
+    <div class="cartao-conteudo">
+      <form id="form-calculo" novalidate>
+
+        <div class="grupo">
+          <div class="grupo-rotulo">Dados pessoais</div>
+
+          <div class="campo">
+            <label for="dataNascimento">
+              Data de nascimento
+              <span class="dica">Idade entre 18 e 67 anos (67 é a reforma compulsória).</span>
+            </label>
+            <input type="date" id="dataNascimento" name="dataNascimento" required>
+          </div>
+        </div>
+
+        <div class="grupo">
+          <div class="grupo-rotulo">Praça e afastamentos</div>
+
+          <div class="campo">
+            <label for="dataPraca">Data de praça</label>
+            <input type="date" id="dataPraca" name="dataPraca" min="1982-01-01" required>
+          </div>
+
+          <div class="campo">
+            <label for="diasAfastamento">
+              Dias de afastamento
+              <span class="dica">Períodos que não contam como tempo de serviço.</span>
+            </label>
+            <input type="number" id="diasAfastamento" name="diasAfastamento"
+                   min="0" step="1" value="0" inputmode="numeric">
+          </div>
+        </div>
+
+        <div class="grupo">
+          <div class="grupo-rotulo">
+            Tempo averbado — militar
+            <button type="button" class="ajuda" aria-label="Como converter meses em dias">
+              <span class="ajuda-icone" aria-hidden="true">?</span>
+              <span class="ajuda-balao" role="tooltip">
+                Meses têm duração variável (28 a 31 dias) — informe o tempo só em anos e dias.
+                Exemplo: 3 anos, 2 meses e 7 dias = <strong>3 anos e 68 dias</strong>
+                (usando os dias reais dos 2 meses, aqui 30 + 31 + 7).
+              </span>
+            </button>
+          </div>
+          <div class="par">
+            <div class="campo">
+              <label for="averbMilitarAnos">Anos</label>
+              <input type="number" id="averbMilitarAnos" min="0" step="1" value="0" inputmode="numeric">
+            </div>
+            <div class="campo">
+              <label for="averbMilitarDias">Dias</label>
+              <input type="number" id="averbMilitarDias" min="0" step="1" value="0" inputmode="numeric">
+            </div>
+          </div>
+          <p class="consolidado" id="consolidadoMilitar">
+            Total: <span class="num">—</span>
+          </p>
+          <button type="button" class="link-atalho gatilho-dias-entre">
+            Calcular dias entre duas datas
+          </button>
+        </div>
+
+        <div class="grupo">
+          <div class="grupo-rotulo">
+            Tempo averbado — civil (INSS)
+            <button type="button" class="ajuda" aria-label="Como converter meses em dias">
+              <span class="ajuda-icone" aria-hidden="true">?</span>
+              <span class="ajuda-balao" role="tooltip">
+                Meses têm duração variável (28 a 31 dias) — informe o tempo só em anos e dias.
+                Exemplo: 3 anos, 2 meses e 7 dias = <strong>3 anos e 68 dias</strong>
+                (usando os dias reais dos 2 meses, aqui 30 + 31 + 7).
+              </span>
+            </button>
+          </div>
+          <div class="par">
+            <div class="campo">
+              <label for="averbCivilAnos">Anos</label>
+              <input type="number" id="averbCivilAnos" min="0" step="1" value="0" inputmode="numeric">
+            </div>
+            <div class="campo">
+              <label for="averbCivilDias">Dias</label>
+              <input type="number" id="averbCivilDias" min="0" step="1" value="0" inputmode="numeric">
+            </div>
+          </div>
+          <p class="consolidado" id="consolidadoCivil">
+            Total: <span class="num">—</span>
+          </p>
+          <button type="button" class="link-atalho gatilho-dias-entre">
+            Calcular dias entre duas datas
+          </button>
+        </div>
+
+        <div class="acoes">
+          <button type="submit" class="botao botao-principal" id="btnCalcular">Calcular</button>
+          <button type="button" class="botao botao-secundario" id="btnLimpar">Limpar</button>
+        </div>
+
+      </form>
+    </div>
+  </section>
+
+  <!-- ============ COLUNA 2: RESULTADOS ============ -->
+  <div>
+    <section class="cartao" aria-labelledby="tit-result">
+      <div class="cartao-cabeca">
+        <h2 class="cartao-titulo" id="tit-result">Resultado</h2>
+        <span class="cartao-nota">Referência: 31/12/2021</span>
+      </div>
+
+      <!-- Régua dos 10.950 dias -->
+      <div class="regua-caixa">
+        <div class="regua" id="regua" role="img"
+             aria-label="Composição do tempo de serviço rumo aos 30 anos">
+          <div class="faixa faixa-corp"></div>
+          <div class="faixa faixa-mil"></div>
+          <div class="faixa faixa-civ"></div>
+          <div class="faixa faixa-ped"></div>
+          <div class="marca30"></div>
+        </div>
+        <div class="legenda">
+          <span><i class="chave" style="background:var(--cumprido)"></i>Corporação</span>
+          <span><i class="chave" style="background:#348B74"></i>Averbação militar</span>
+          <span><i class="chave" style="background:#5CA894"></i>Averbação civil</span>
+          <span><i class="chave" style="background:var(--pedagio)"></i>Pedágio</span>
+          <span><i class="chave" style="background:var(--marinho)"></i>Marca dos 30 anos</span>
+        </div>
+      </div>
+
+      <!-- Saída principal -->
+      <div class="destaque">
+        <p class="destaque-rotulo">Previsão de passagem para a reserva</p>
+        <div class="destaque-valor num" id="saidaDataReserva">—</div>
+      </div>
+
+      <p class="aviso-compulsoria" id="avisoCompulsoria" hidden>
+        Reserva antecipada por reforma compulsória: o militar completaria o
+        tempo de serviço depois de atingir 67 anos, então a data acima já é
+        a do aniversário de 67 anos, não a do tempo de serviço cumprido.
+        Proventos proporcionais não são calculados por este simulador.
+      </p>
+
+      <!-- Demais saídas validadas -->
+      <ul class="resultados">
+        <li>
+          <span class="res-rotulo">Idade na data prevista da reserva</span>
+          <span class="res-valor num" id="saidaIdadeReserva">—</span>
+        </li>
+        <li>
+          <span class="res-rotulo">Tempo total de serviço com pedágio</span>
+          <span class="res-valor num" id="saidaTempoComPedagio">—</span>
+        </li>
+        <li>
+          <span class="res-rotulo">Tempo de Serviço até 31/12/2021</span>
+          <span class="res-valor num" id="saidaTempoServicoTotal">—</span>
+        </li>
+        <li>
+          <span class="res-rotulo">Tempo de contribuição militar atual</span>
+          <span class="res-valor num" id="saidaContribuicaoHoje">—</span>
+        </li>
+        <li>
+          <span class="res-rotulo">Pedágio de tempo de serviço (17%)</span>
+          <span class="res-valor num onus" id="saidaPedagio">—</span>
+        </li>
+      </ul>
+
+      <p class="rodape-cartao">
+        Averbação civil: sem teto para apurar o pedágio; limitada a 1.825 dias
+        na soma do tempo de serviço.
+      </p>
+    </section>
+
+    <aside class="pendencia">
+      <h3>Campos ainda não disponíveis</h3>
+      <p>
+        A planilha de origem exibe outros seis resultados. Eles ficam de fora
+        até que o cálculo de cada um seja conferido:
+      </p>
+      <ul>
+        <li>Tempo mínimo de contribuição militar</li>
+        <li>Pedágio de contribuição militar</li>
+        <li>Tempo máximo de averbação de INSS</li>
+        <li>Pedágio de contribuição social (meses)</li>
+        <li>Anos de efetivo serviço restante para 30 anos</li>
+        <li>Anos de efetivo serviço a serem cumpridos</li>
+      </ul>
+    </aside>
+  </div>
+
+</main>
+
+<p class="rodape">
+  Ferramenta de apoio. O cálculo oficial de tempo de serviço é o apostilamento
+  emitido pela Diretoria de Cadastros e Pagamentos.
+</p>
+
+<script src="calculo_tempo.js"></script>
+
+</body>
+</html>
